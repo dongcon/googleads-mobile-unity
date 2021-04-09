@@ -102,6 +102,11 @@ namespace GoogleMobileAds.Android
                 }
             }
 
+            if (requestConfiguration.SameAppKeyEnabled.HasValue) {
+              requestConfigurationBuilder.Call<AndroidJavaObject>(
+                  "setSameAppKeyEnabled", requestConfiguration.SameAppKeyEnabled.Value);
+            }
+
             return requestConfigurationBuilder.Call<AndroidJavaObject>("build");
 
         }
@@ -115,12 +120,15 @@ namespace GoogleMobileAds.Android
             MaxAdContentRating maxAdContentRating = MaxAdContentRating.ToMaxAdContentRating(androidRequestConfiguration.Call<string>("getMaxAdContentRating"));
             List<string> TestDeviceIds = Utils.GetCsTypeList(androidRequestConfiguration.Call<AndroidJavaObject>("getTestDeviceIds"));
 
+            bool sameAppKeyEnabled = androidRequestConfiguration.Call<bool>("isSameAppKeyEnabled");
+
             RequestConfiguration.Builder builder = new RequestConfiguration.Builder();
             builder = builder.SetTagForChildDirectedTreatment(TagForChildDirectedTreatment);
             builder = builder.SetTagForUnderAgeOfConsent(TagForUnderAgeOfConsent);
 
             builder = builder.SetMaxAdContentRating(maxAdContentRating);
             builder = builder.SetTestDeviceIds(TestDeviceIds);
+            builder = builder.SetSameAppKeyEnabled(sameAppKeyEnabled);
 
             return builder.build();
         }
