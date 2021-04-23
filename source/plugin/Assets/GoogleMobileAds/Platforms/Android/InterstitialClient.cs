@@ -22,14 +22,14 @@ namespace GoogleMobileAds.Android
 {
     public class InterstitialClient : AndroidJavaProxy, IInterstitialClient
     {
-        private AndroidJavaObject interstitial;
+        private AndroidJavaObject androidInterstitialAd;
 
         public InterstitialClient() : base(Utils.UnityAdListenerClassName)
         {
             AndroidJavaClass playerClass = new AndroidJavaClass(Utils.UnityActivityClassName);
             AndroidJavaObject activity =
                     playerClass.GetStatic<AndroidJavaObject>("currentActivity");
-            this.interstitial = new AndroidJavaObject(
+            this.androidInterstitialAd = new AndroidJavaObject(
                 Utils.InterstitialClassName, activity, this);
         }
 
@@ -37,10 +37,13 @@ namespace GoogleMobileAds.Android
 
         public event EventHandler<LoadAdErrorClientEventArgs> OnAdFailedToLoad;
 
-        public event EventHandler<EventArgs> OnAdOpening;
+        public event EventHandler<AdErrorClientEventArgs> OnAdFailedToPresentFullScreenContent;
 
-        public event EventHandler<EventArgs> OnAdClosed;
+        public event EventHandler<EventArgs> OnAdDidPresentFullScreenContent;
 
+        public event EventHandler<EventArgs> OnAdDidDismissFullScreenContent;
+
+        public event EventHandler<EventArgs> OnAdmpression;
 
         public event EventHandler<AdValueEventArgs> OnPaidEvent;
 
@@ -49,43 +52,35 @@ namespace GoogleMobileAds.Android
         // Creates an interstitial ad.
         public void CreateInterstitialAd(string adUnitId)
         {
-            this.interstitial.Call("create", adUnitId);
+            // No op.
         }
 
         // Loads an ad.
-        public void LoadAd(AdRequest request)
+        public void LoadAd(string adUnitId, AdRequest request)
         {
-            this.interstitial.Call("loadAd", Utils.GetAdRequestJavaObject(request));
-        }
-
-        // Checks if interstitial has loaded.
-        public bool IsLoaded()
-        {
-            return this.interstitial.Call<bool>("isLoaded");
+            this.androidInterstitialAd.Call("loadAd", adUnitId, Utils.GetAdRequestJavaObject(request));
         }
 
         // Presents the interstitial ad on the screen.
-        public void ShowInterstitial()
+        public void Show()
         {
-            this.interstitial.Call("show");
+            this.androidInterstitialAd.Call("show");
         }
 
         // Destroys the interstitial ad.
         public void DestroyInterstitial()
         {
-            this.interstitial.Call("destroy");
+            this.androidInterstitialAd.Call("destroy");
         }
 
         // Returns ad request response info
         public IResponseInfoClient GetResponseInfoClient()
         {
 
-            return new ResponseInfoClient(ResponseInfoClientType.AdLoaded, this.interstitial);
+            return new ResponseInfoClient(ResponseInfoClientType.AdLoaded, this.androidInterstitialAd);
         }
 
         #endregion
-
-        #region Callbacks from UnityInterstitialAdListener.
 
         public void onAdLoaded()
         {
@@ -107,19 +102,40 @@ namespace GoogleMobileAds.Android
             }
         }
 
-        public void onAdOpened()
+        void onAdFailedToPresentFullScreenContent(AndroidJavaObject error)
         {
-            if (this.OnAdOpening != null)
+            if (this.OnAdFailedToPresentFullScreenContent != null)
             {
-                this.OnAdOpening(this, EventArgs.Empty);
+                AdErrorClientEventArgs args = new AdErrorClientEventArgs()
+                {
+                    AdErrorClient = new AdErrorClient(error),
+                };
+                this.OnAdFailedToPresentFullScreenContent(this, args);
             }
         }
 
-        public void onAdClosed()
+        void onAdDidPresentFullScreenContent()
         {
-            if (this.OnAdClosed != null)
+            if (this.OnAdDidPresentFullScreenContent != null)
             {
-                this.OnAdClosed(this, EventArgs.Empty);
+                this.OnAdDidPresentFullScreenContent(this, EventArgs.Empty);
+            }
+        }
+
+
+        void onAdDismissedFullScreenContent()
+        {
+            if (this.OnAdDidDismissFullScreenContent != null)
+            {
+                this.OnAdDidDismissFullScreenContent(this, EventArgs.Empty);
+            }
+        }
+
+        void OnAdImpression()
+        {
+            if (this.OnAdImpression != null)
+            {
+                this.OnAdImpression(this, EventArgs.Empty);
             }
         }
 
@@ -141,8 +157,5 @@ namespace GoogleMobileAds.Android
                 this.OnPaidEvent(this, args);
             }
         }
-
-
-        #endregion
     }
 }

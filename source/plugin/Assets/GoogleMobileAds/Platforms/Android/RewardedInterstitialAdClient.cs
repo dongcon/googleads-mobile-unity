@@ -45,6 +45,8 @@ namespace GoogleMobileAds.Android
 
         public event EventHandler<EventArgs> OnAdDidDismissFullScreenContent;
 
+        public event EventHandler<EventArgs> OnAdmpression;
+
         public void CreateRewardedInterstitialAd()
         {
             // Do nothing.
@@ -106,7 +108,7 @@ namespace GoogleMobileAds.Android
             }
         }
 
-        void onAdFailedToShowFullScreenContent(AndroidJavaObject error)
+        void onAdFailedToPresentFullScreenContent(AndroidJavaObject error)
         {
             if (this.OnAdFailedToPresentFullScreenContent != null)
             {
@@ -118,7 +120,7 @@ namespace GoogleMobileAds.Android
             }
         }
 
-        void onAdShowedFullScreenContent()
+        void onAdDidPresentFullScreenContent()
         {
             if (this.OnAdDidPresentFullScreenContent != null)
             {
@@ -132,6 +134,14 @@ namespace GoogleMobileAds.Android
             if (this.OnAdDidDismissFullScreenContent != null)
             {
                 this.OnAdDidDismissFullScreenContent(this, EventArgs.Empty);
+            }
+        }
+
+        void OnAdImpression()
+        {
+            if (this.OnAdImpression != null)
+            {
+                this.OnAdImpression(this, EventArgs.Empty);
             }
         }
 

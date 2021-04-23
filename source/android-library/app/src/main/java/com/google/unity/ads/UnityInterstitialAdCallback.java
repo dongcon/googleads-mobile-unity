@@ -4,14 +4,12 @@ import com.google.android.gms.ads.AdError;
 import com.google.android.gms.ads.LoadAdError;
 
 /**
- * An interface form of {@link UnityRewardedAdCallback} that can be implemented via {@code
+ * An interface form of {@link UnityInterstitialAdCallback} that can be implemented via {@code
  * AndroidJavaProxy} in Unity to receive ad events synchronously.
  */
 public interface UnityRewardedAdCallback extends UnityPaidEventListener, UnityFullScreenContentCallback {
 
-    void onRewardedAdLoaded();
+    void onInterstitialAdLoaded();
 
-    void onRewardedAdFailedToLoad(LoadAdError error);
-
-    void onUserEarnedReward(String type, float amount);
+    void onInterstitialAdFailedToLoad(LoadAdError error);
 }
